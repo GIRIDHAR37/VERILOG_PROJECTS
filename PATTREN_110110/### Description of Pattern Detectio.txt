@@ -1,0 +1,62 @@
+### Description of Pattern Detection (110110) in Verilog
+
+#### 1. **Concept Overview**
+   The goal is to detect the specific bit pattern `110110` within a serial input stream. When this pattern is detected, a signal (e.g., `pattern_detected`) is asserted.
+
+#### 2. **Finite State Machine (FSM) Approach**
+   The pattern detection is typically implemented using an FSM, which involves:
+   
+   - **States**: Each state represents the number of bits matched so far in the pattern.
+     - **S0**: No bits matched yet.
+     - **S1**: Detected the first `1`.
+     - **S2**: Detected `11`.
+     - **S3**: Detected `110`.
+     - **S4**: Detected `1101`.
+     - **S5**: Detected `11011`.
+     - **S6**: Detected `110110` (final state, pattern fully matched).
+   
+   - **Transitions**: The FSM transitions from one state to another based on the incoming bit (either `0` or `1`). If a mismatch occurs (a bit doesn't match the expected next bit in the pattern), the FSM will transition to an appropriate earlier state that matches part of the sequence or back to the initial state.
+
+#### 3. **Inputs and Outputs**
+   - **Input**: A serial data stream (e.g., `data_in`) where the pattern will be detected.
+   - **Output**: A signal (`pattern_detected`) that indicates when the pattern `110110` is successfully detected.
+
+#### 4. **State Transitions**
+   - The FSM starts in the initial state (**S0**), waiting for the first `1`.
+   - Upon receiving `1`, it transitions to **S1**. If `0` is received, it stays in **S0**.
+   - After reaching **S5** (with sequence `11011` detected), if the next bit is `0`, it transitions to **S6**. 
+   - If the FSM reaches **S6**, the pattern `110110` is fully matched, and the `pattern_detected` signal is asserted.
+
+#### 5. **Implementation in Verilog**
+   - **Clock-Driven FSM**: The state transitions are synchronized with a clock signal. 
+   - **Edge Detection**: On every positive or negative clock edge, the FSM checks the input bit and determines the next state.
+   - **Pattern Output Signal**: The `pattern_detected` output is asserted when the FSM reaches the final state (**S6**).
+
+### Tools Used:
+Editor: `gvim`
+  `gvim` is a text editor where you write and edit the Verilog code.
+Simulator: `ModelSim`
+   ModelSim is used to simulate the Verilog code, verify the FSM operation, and ensure the pattern `110110` is correctly detected.
+
+Summary
+In summary, pattern detection using an FSM in Verilog is an efficient method to recognize sequences in a data stream. The FSM moves through states corresponding to the matched part of the pattern, and when the full sequence is detected, a signal is asserted, indicating a successful match. The design and simulation tools like `gvim` and `ModelSim` are essential for developing and verifying such digital designs.
+
+### Pattern Detection (110110) using Mealy and Moore Machines
+
+#### **1. Mealy Machine:**
+- **Output Dependence:** The output is based on both the current state and the input.
+- **Output Timing:** The output can change immediately when the input changes, leading to faster detection.
+- **Overlapping Pattern Detection:** After detecting the pattern, the machine can immediately start detecting the next pattern without resetting fully. This allows overlapping sequences like `110110110110`.
+- **Non-Overlapping Pattern Detection:** After detecting the pattern, the machine resets to the initial state (or another appropriate state) before detecting the next occurrence, avoiding overlaps.
+
+#### **2. Moore Machine:**
+- **Output Dependence:** The output depends only on the current state, not directly on the input.
+- **Output Timing:** The output changes only at state transitions, potentially making it slower but more stable.
+- **Overlapping Pattern Detection:** Similar to the Mealy machine, the Moore machine can start detecting the next sequence immediately after the current one is detected.
+- **Non-Overlapping Pattern Detection:** The machine resets to the initial state after detecting the pattern, ensuring no overlap between detected sequences.
+
+### **Summary:**
+- **Mealy Machines** are faster and more responsive since the output can change mid-state, making them suitable for applications requiring immediate detection. They can efficiently handle overlapping patterns.
+- **Moore Machines** provide more stable output since it only changes at state transitions, making them easier to design and debug. They can handle both overlapping and non-overlapping patterns depending on how the state transitions are designed.
+
+Both approaches are essential in VLSI design for various applications, with the choice between Mealy and Moore depending on the specific timing and stability requirements of the system.
